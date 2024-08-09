@@ -31,6 +31,7 @@ public class PointService {
     /**
      * 포인트 사용 - 포인트가 결제할 금액보다 작을 경우 예외발생
      */
+    @Transactional
     public void usePoint(int reservedPrice, UserAccount userAccount) {
         if (reservedPrice > userAccount.getPoint()) {
             throw new ApplicationException(ErrorCode.NOT_ENOUGH_POINT,

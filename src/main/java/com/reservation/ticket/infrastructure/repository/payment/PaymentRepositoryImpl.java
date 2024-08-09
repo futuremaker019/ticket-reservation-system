@@ -15,4 +15,10 @@ public class PaymentRepositoryImpl implements PaymentRepository {
     public Payment save(Payment payment) {
         return paymentJpaRepository.save(payment);
     }
+
+    @Override
+    public void delete(Long paymentId) {
+        paymentJpaRepository.deleteById(paymentId);
+    }
+
 }

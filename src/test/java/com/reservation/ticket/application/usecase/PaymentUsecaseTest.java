@@ -2,9 +2,11 @@ package com.reservation.ticket.application.usecase;
 
 import com.reservation.ticket.domain.dto.command.QueueCommand;
 import com.reservation.ticket.domain.dto.info.ReservationInfo;
+import com.reservation.ticket.domain.entity.concert.reservation.Reservation;
 import com.reservation.ticket.domain.entity.concert.reservation.ReservationService;
 import com.reservation.ticket.domain.entity.concert.reservation.payment.PaymentService;
 import com.reservation.ticket.domain.entity.point.PointService;
+import com.reservation.ticket.domain.entity.queue.QueueRedisService;
 import com.reservation.ticket.domain.entity.queue.QueueService;
 import com.reservation.ticket.domain.entity.userAccount.UserAccountService;
 import com.reservation.ticket.domain.enums.PaymentStatus;
@@ -26,7 +28,7 @@ class PaymentUsecaseTest {
     @Autowired
     UserAccountService userAccountService;
     @Autowired
-    QueueService queueService;
+    QueueRedisService queueRedisService;
     @Autowired
     ReservationService reservationService;
     @Autowired
@@ -59,17 +61,18 @@ class PaymentUsecaseTest {
 
         // then
         // 대기열의 상태값이 `ACTIVE` -> `EXPIRED` 변경확인
-        QueueCommand.Get queue = queueService.getQueueByToken(token);
-        assertThat(queue.queueStatus()).isEqualTo(QueueStatus.EXPIRED);
+        queueRedisService.expire(token);
+        QueueCommand.Get queue = queueRedisService.getQueueByToken(token);
+        assertThat(queue).isNull();
 
         // 예약 상태값 `NOT_PAID` -> `PAID` 변경확인
-        ReservationInfo reservation = reservationService.getReservationById(reservationId);
-        assertThat(reservation.paymentStatus()).isEqualTo(PaymentStatus.PAID);
+        Reservation reservation = reservationService.getReservation(reservationId);
+        assertThat(reservation.getPaymentStatus()).isEqualTo(PaymentStatus.PAID);
 
         // 결재 후 사용자의 포인트가 차감 됬는지 확인
         int pointAfterPaid = userAccountService.getUserAccountById(userId).getPoint();
         int expectedUserPoint = 10000;
-        int restPoint = expectedUserPoint - reservation.price();
+        int restPoint = expectedUserPoint - reservation.getPrice();
         assertThat(pointAfterPaid).isEqualTo(restPoint);
     }
 

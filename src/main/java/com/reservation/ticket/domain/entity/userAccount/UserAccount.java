@@ -54,6 +54,10 @@ public class UserAccount {
         return new UserAccount(id, username);
     }
 
+    public static UserAccount of(Long id, int point) {
+        return new UserAccount(id, null, null, point);
+    }
+
     public static UserAccount of(Long id, String username, String token) {
         return new UserAccount(id, username, token, 0);
     }

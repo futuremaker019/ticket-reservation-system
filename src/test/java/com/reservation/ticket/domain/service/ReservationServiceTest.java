@@ -79,7 +79,7 @@ class ReservationServiceTest {
         given(reservationRepository.findById(reservationId)).willReturn(reservation);
 
         // when
-        Reservation changedReservation = sut.changePaymentStatusAsPaid(reservationId);
+        Reservation changedReservation = sut.getReservation(reservationId);
 
         // then
         assertThat(changedReservation.getPaymentStatus()).isEqualTo(PaymentStatus.PAID);

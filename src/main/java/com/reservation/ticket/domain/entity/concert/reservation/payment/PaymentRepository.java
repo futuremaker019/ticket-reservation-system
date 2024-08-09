@@ -4,4 +4,5 @@ public interface PaymentRepository {
 
     Payment save(Payment payment);
 
+    void delete(Long paymentId);
 }

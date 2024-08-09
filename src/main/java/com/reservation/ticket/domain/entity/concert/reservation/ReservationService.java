@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -72,10 +71,17 @@ public class ReservationService {
         return reservationRepository.findAllByReservationStatus(reservationStatus);
     }
 
-    public Reservation changePaymentStatusAsPaid(Long reservationId) {
+    @Transactional
+    public Reservation getReservation(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId);
         reservation.changePaymentStatus(PaymentStatus.PAID);
         return reservation;
+    }
+
+    @Transactional
+    public void changePaymentStatus(Long reservationId, PaymentStatus paymentStatus) {
+        Reservation reservation = reservationRepository.findById(reservationId);
+        reservation.changePaymentStatus(paymentStatus);
     }
 
     public void checkIfSeatsAvailable(Long concertScheduleId, List<Long> seatIds) {

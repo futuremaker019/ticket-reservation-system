@@ -32,6 +32,11 @@ public class QueueRedisService {
         return token;
     }
 
+    public void recoverQueue(Long userId, QueueStatus queueStatus) {
+        UserAccount userAccount = userAccountRepository.findById(userId);
+        queueRedisRepository.save(QueueStatement.of(userAccount, userAccount.getToken(), queueStatus));
+    }
+
     public List<QueueCommand.Get> selectQueueByStatus(QueueStatus status) {
         return List.of();
     }
@@ -71,9 +76,12 @@ public class QueueRedisService {
         }
     }
 
+    public void expire(String token) {
+        queueRedisRepository.removeQueue(QueueStatement.of(token, QueueStatus.ACTIVE));
+    }
+
     private String generateToken() {
         String uuid = UUID.randomUUID().toString();
         return uuid.substring(uuid.lastIndexOf("-") + 1);
     }
-
 }
